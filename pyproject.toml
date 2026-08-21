@@ -1,0 +1,95 @@
+# award-audit 项目配置（PEP 621 + Hatchling 构建 + 工具链，技术栈刻意对齐 KamaClaude）
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "award-audit"
+version = "0.1.0"
+description = "评奖审核入库智能体 —— 确定性核查管道 + LLM 定点辅助 + 人在环复核"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.0",   # 模板注册表 / Issue / 命令事件的类型化与校验
+    "openpyxl>=3.1",   # 读写 Excel（模板、提交文件、反馈意见）
+]
+
+# 各里程碑按需引入，先声明为可选依赖组，M1 不装也能跑
+[project.optional-dependencies]
+tui = ["textual>=0.75"]                 # M3 复核台
+agent = [
+    "anthropic>=0.25",
+    "httpx>=0.28",
+    "langgraph>=0.2,<0.4",
+    "openai>=1.0",
+]  # M4/M5 联网核查与原生 Tool Calling
+probe-pdf = [
+    "Pillow>=10.0",       # 合成扫描页
+    "reportlab>=4.0",     # 生成受控数字/扫描 PDF
+    "pdfplumber>=0.11",   # P3 文本与表格候选抽取
+    "pypdf>=5.0",         # P3 页级文本基线与 PDF 结构检查
+]
+m5-pdf = [
+    "Pillow>=10.0",                # 图片解码、尺寸和像素安全检查
+    "pdfplumber>=0.11",            # 页级表格候选
+    "pypdf>=5.0",                  # PDF 结构和页文本
+    "rapidocr-onnxruntime>=1.4",   # 扫描页中文 OCR
+]
+web = [
+    "fastapi>=0.115",
+    "httpx>=0.28",
+    "python-multipart>=0.0.9",
+    "uvicorn[standard]>=0.30",
+]
+
+[project.scripts]
+award-audit = "award_audit.cli.main:main"  # 安装后可执行：award-audit check <批次文件夹>
+award-core = "award_audit.core.app:run"    # M3：daemon
+award-tui = "award_audit.tui.app:main"     # M3：复核台（需 pip install textual）
+award-web = "award_audit.web.server:main"  # M5.6：本地 Web 复核台（需 web extra）
+award-db = "award_audit.db_governance:main"  # SQLite 健康检查与安全在线备份
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/award_audit"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pytest>=8.0",
+]
+
+[tool.ruff]
+src = ["src"]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]  # pycodestyle / Pyflakes / isort / pyupgrade
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["E501"]  # 测试的中文注释允许超行宽
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+mypy_path = "src"
+explicit_package_bases = true
+
+# openpyxl 未随包提供类型存根，strict 下忽略其缺失 stub；textual 为可选依赖，未安装时不阻塞类型检查
+[[tool.mypy.overrides]]
+module = [
+    "openpyxl.*",
+    "pdfplumber.*",
+    "PIL.*",
+    "pypdf.*",
+    "rapidocr_onnxruntime.*",
+    "textual.*",
+]
+ignore_missing_imports = true
+
+# ---- Pytest：默认发现 tests/，pythonpath 让 src 布局免设环境变量 ----
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

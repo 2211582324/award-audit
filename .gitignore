@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# 工具缓存
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# 运行产出（反馈意见等）
+out/*.xlsx
+out/*.md
+!out/.gitkeep
+
+# 运行数据（真实批次，体积大/可能敏感，不入库；用 config 路径引用）
+data/
+
+# SQLite 台账（M2，运行期生成）
+*.db
+*.sqlite3
+
+# 密钥与本地配置（绝不入库；权限锁见 .claude/settings.json 的 deny 规则）
+.env
+
+# 系统
+.DS_Store
+.webdeps/
+webui/node_modules/
+webui/dist/
+webui/.npm-cache/
+webui/*.tsbuildinfo
+webui/vite.config.js
+webui/vite.config.d.ts
+webui/test-results/
+webui/playwright-report/
+
+# IDE 本地配置
+.idea/
+.vscode/
+
+# 本地环境变量变体，保留示例
+.env.*
+!.env.example
+
+# 临时测试与覆盖率输出
+tmp/
+.pytest-*/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.log
+
+# 本地运行结果和真实验收材料
+out/*
+!out/.gitkeep
+tests/data/m5_real/
+
+# 仅本机保留的站点诊断、真实案例验收和 Web 演示脚本
+scripts/local/
+
+# Local-only development records and evaluation data
+docs/
+samples/提交-脏样本/
+webui/src/acceptanceDetails.generated.json
+CLAUDE.md

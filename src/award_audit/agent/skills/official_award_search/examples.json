@@ -1,0 +1,35 @@
+{
+  "examples": [
+    {
+      "case": "known organizer domain",
+      "input": {
+        "award_name": "中国专利奖",
+        "year": "2025",
+        "organizer": "国家知识产权局",
+        "strategy": "site",
+        "official_domains": ["cnipa.gov.cn"]
+      },
+      "expected": "Prefer cnipa.gov.cn leads, then fetch the notice and its complete attachment."
+    },
+    {
+      "case": "international award",
+      "input": {
+        "award_name": "图灵奖",
+        "english_name": "ACM A.M. Turing Award",
+        "year": "2024",
+        "strategy": "international",
+        "official_domains": ["acm.org"]
+      },
+      "expected": "Use the English query and treat acm.org as primary; Chinese media remains a lead."
+    },
+    {
+      "case": "no official candidate",
+      "input": {
+        "award_name": "某竞赛奖项",
+        "year": "2024",
+        "strategy": "broad"
+      },
+      "expected": "Return manual_required when only school reposts, media, aggregators, or unknown domains remain."
+    }
+  ]
+}

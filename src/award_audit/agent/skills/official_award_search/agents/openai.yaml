@@ -1,0 +1,4 @@
+interface:
+  display_name: "官方奖项搜索"
+  short_description: "按来源等级查找、筛选并核验官方奖项公示、附件与获奖名单"
+  default_prompt: "Use $official-award-search to find official award notices and distinguish leads from verified evidence."
